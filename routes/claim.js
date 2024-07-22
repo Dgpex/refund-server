@@ -6,6 +6,9 @@ const multer = require('multer');
 const path = require('path');
 
 
+const userAuth = require("../middleware/authMiddleware")
+
+
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -143,7 +146,7 @@ router.post('/bank-verification', async (req, res) => {
   }
 });
 
-router.post('/save-claim-details', upload.single('paymentFile'), async (req, res) => {
+router.post('/save-claim-details',userAuth, upload.single('paymentFile'), async (req, res) => {
     try {
       const {
         name, mobile_number, address, city, state, country, postal_code,
@@ -151,6 +154,8 @@ router.post('/save-claim-details', upload.single('paymentFile'), async (req, res
         monthly_received_amount, agent_name, agent_mobile_number, sub_agent_name,
         bond_reference_number
       } = req.body;
+
+      const id = req.user.id;
   
       const paymentFile = req.file ? req.file.path : '';
   
@@ -171,7 +176,8 @@ router.post('/save-claim-details', upload.single('paymentFile'), async (req, res
         agent_mobile_number,
         sub_agent_name,
         bond_reference_number,
-        paymentFile
+        paymentFile,
+        userId:id
       });
   
       await claim.save();

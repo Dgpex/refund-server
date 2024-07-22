@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const claimSchema = new mongoose.Schema({
   name: { type: String, trim: true },
@@ -20,6 +21,10 @@ const claimSchema = new mongoose.Schema({
   paymentFile: { type: String, trim: true },
   created_at: { type: Date, default: Date.now },
   status: { type: String, default: "processing" },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
   aadharDetails: {
     aadhaar_number: { type: String, trim: true },
     fullName: { type: String, trim: true },
