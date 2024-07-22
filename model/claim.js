@@ -19,6 +19,7 @@ const claimSchema = new mongoose.Schema({
   sub_agent_name: { type: String, trim: true },
   bond_reference_number: { type: String, trim: true },
   paymentFile: { type: String, trim: true },
+  bondFile: { type: String, trim: true },
   created_at: { type: Date, default: Date.now },
   status: { type: String, default: "processing" },
   userId: {

@@ -146,7 +146,7 @@ router.post('/bank-verification', async (req, res) => {
   }
 });
 
-router.post('/save-claim-details', userAuth, upload.single('paymentFile'), async (req, res) => {
+router.post('/save-claim-details', userAuth, upload.fields([{ name: 'paymentFile' }, { name: 'bondFile' }]), async (req, res) => {
   try {
     const {
       name, mobile_number, houseAddress, city, state, country, postal_code,
@@ -155,10 +155,10 @@ router.post('/save-claim-details', userAuth, upload.single('paymentFile'), async
       bond_reference_number
     } = req.body;
 
-    const {id} = req.user
-   
+    const { id } = req.user;
 
-    const paymentFile = req.file ? req.file.path : '';
+    const paymentFile = req.files['paymentFile'] ? req.files['paymentFile'][0].path : '';
+    const bondFile = req.files['bondFile'] ? req.files['bondFile'][0].path : '';
 
     const claim = new Claim({
       name,
@@ -178,13 +178,13 @@ router.post('/save-claim-details', userAuth, upload.single('paymentFile'), async
       sub_agent_name,
       bond_reference_number,
       paymentFile,
-      userId:id
+      bondFile,
+      userId: id
     });
 
     await claim.save();
 
     // Update the user's claims array
-
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -193,7 +193,7 @@ router.post('/save-claim-details', userAuth, upload.single('paymentFile'), async
     user.claims.push(claim._id);
     await user.save();
 
-    res.status(201).json({ message: 'Claim details saved successfully', claimId:claim._id });
+    res.status(201).json({ message: 'Claim details saved successfully', claimId: claim._id });
   } catch (error) {
     res.status(500).json({ message: 'Error saving claim details', error: error.message });
   }
