@@ -4,6 +4,7 @@ const Claim = require('../model/claim'); // Adjust the path as needed
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const User = require("../model/userModel")
 
 
 const userAuth = require("../middleware/authMiddleware")
@@ -99,7 +100,7 @@ router.post('/verify-aadhar-otp', async (req, res) => {
 
 router.post('/bank-verification', async (req, res) => {
   try {
-    const { ac_no, ifsc, mobno, nominee, claimId } = req.body;
+    const { ac_no, ifsc, mobno, claimId } = req.body;
 
     const response = await axios.post(
       "https://api.signzy.app/api/v3/bankaccountverifications/advancedverification",
@@ -123,7 +124,6 @@ router.post('/bank-verification', async (req, res) => {
         accountNumber: ac_no,
         ifscCode: ifsc,
         isVerified: true,
-        nominee: nominee || {},
         beneName: response.data.result.bankTransfer.beneName
       };
 
@@ -146,47 +146,93 @@ router.post('/bank-verification', async (req, res) => {
   }
 });
 
-router.post('/save-claim-details',userAuth, upload.single('paymentFile'), async (req, res) => {
-    try {
-      const {
-        name, mobile_number, address, city, state, country, postal_code,
-        name_as_per_bond, fathers_name, invested_amount, invested_date,
-        monthly_received_amount, agent_name, agent_mobile_number, sub_agent_name,
-        bond_reference_number
-      } = req.body;
+router.post('/save-claim-details', userAuth, upload.single('paymentFile'), async (req, res) => {
+  try {
+    const {
+      name, mobile_number, houseAddress, city, state, country, postal_code,
+      name_as_per_bond, fathers_name, invested_amount, invested_date,
+      monthly_received_amount, agent_name, agent_mobile_number, sub_agent_name,
+      bond_reference_number
+    } = req.body;
 
-      const id = req.user.id;
-  
-      const paymentFile = req.file ? req.file.path : '';
-  
-      const claim = new Claim({
-        name,
-        mobile_number,
-        address,
-        city,
-        state,
-        country,
-        postal_code,
-        name_as_per_bond,
-        fathers_name,
-        invested_amount,
-        invested_date,
-        monthly_received_amount,
-        agent_name,
-        agent_mobile_number,
-        sub_agent_name,
-        bond_reference_number,
-        paymentFile,
-        userId:id
-      });
-  
-      await claim.save();
-      res.status(201).json({ message: 'Claim details saved successfully', claim });
-    } catch (error) {
-      res.status(500).json({ message: 'Error saving claim details', error: error.message });
+    const {id} = req.user
+   
+
+    const paymentFile = req.file ? req.file.path : '';
+
+    const claim = new Claim({
+      name,
+      mobile_number,
+      houseAddress,
+      city,
+      state,
+      country,
+      postal_code,
+      name_as_per_bond,
+      fathers_name,
+      invested_amount,
+      invested_date,
+      monthly_received_amount,
+      agent_name,
+      agent_mobile_number,
+      sub_agent_name,
+      bond_reference_number,
+      paymentFile,
+      userId:id
+    });
+
+    await claim.save();
+
+    // Update the user's claims array
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  });
 
+    user.claims.push(claim._id);
+    await user.save();
+
+    res.status(201).json({ message: 'Claim details saved successfully', claimId:claim._id });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving claim details', error: error.message });
+  }
+});
+
+
+router.get('/get-user-claims', userAuth, async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const user = await User.findById(id).populate('claims');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ claims: user.claims });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user claims', error: error.message });
+  }
+});
+
+router.get('/view-claim/:id', userAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const claim = await Claim.findById(id).populate('userId');
+    if (!claim) {
+      return res.status(404).json({ message: 'Claim not found' });
+    }
+
+    if (claim.userId._id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized access' });
+    }
+
+    res.status(200).json({ claim });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching claim', error: error.message });
+  }
+});
 
 
 

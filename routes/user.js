@@ -82,7 +82,7 @@ router.post('/verify', async (req, res) => {
 
     const payload = {
       user: {
-        id: user.id,
+        id: user._id,
         role: user.role
       }
     };

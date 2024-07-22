@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 // User Schema
 const userSchema = new Schema({
-
   phone: {
     type: String,
     required: true,
@@ -21,7 +20,10 @@ const userSchema = new Schema({
     default: 'user',
     trim: true,
   },
- 
+  claims: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Claim'
+  }]
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);

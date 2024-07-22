@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const claimSchema = new mongoose.Schema({
   name: { type: String, trim: true },
   mobile_number: { type: String, trim: true },
-  address: { type: String, trim: true },
+  houseAddress: { type: String, trim: true },
   city: { type: String, trim: true },
   state: { type: String, trim: true },
   country: { type: String, trim: true, default: "INDIA" },
@@ -12,7 +12,7 @@ const claimSchema = new mongoose.Schema({
   name_as_per_bond: { type: String, trim: true },
   fathers_name: { type: String, trim: true },
   invested_amount: { type: String, trim: true },
-  invested_date: { type: Date, trim: true },
+  invested_date: { type: String, trim: true },
   monthly_received_amount: { type: String, trim: true },
   agent_name: { type: String, trim: true },
   agent_mobile_number: { type: String, trim: true },
@@ -43,7 +43,6 @@ const claimSchema = new mongoose.Schema({
     accountNumber: { type: String, trim: true },
     ifscCode: { type: String, trim: true },
     isVerified: { type: Boolean, default: false },
-    nominee: { type: Object, trim: true },
     beneName: { type: String, trim: true }
   }
 });
