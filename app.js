@@ -4,14 +4,14 @@ require('dotenv').config();
 const cors = require("cors");
 const userRoutes = require("./routes/user")
 const claimsRoutes = require("./routes/claim")
-
+const path = require('path');
 
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 
 // Serve static files from the 'uploads' directory
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const corsOptions = {
   origin: "*", 

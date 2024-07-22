@@ -2,6 +2,22 @@ const express = require('express');
 const axios = require('axios');
 const Claim = require('../model/claim'); // Adjust the path as needed
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+
+
+
+// Configure multer storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/'); // Specify the directory to save uploaded files
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique file name
+    }
+  });
+
+  const upload = multer({ storage: storage });
 
 router.post('/send-aadhar-otp', async (req, res) => {
   const { aadharNumber } = req.body;
@@ -127,42 +143,43 @@ router.post('/bank-verification', async (req, res) => {
   }
 });
 
-// Additional API to save other details to the Claim model
-router.post('/save-claim-details', async (req, res) => {
-  try {
-    const {
-      name, mobile_number, address, city, state, country, postal_code,
-      name_as_per_bond, fathers_name, invested_amount, invested_date,
-      monthly_received_amount, agent_name, agent_mobile_number, sub_agent_name,
-      bond_reference_number, paymentFile
-    } = req.body;
-
-    const claim = new Claim({
-      name,
-      mobile_number,
-      address,
-      city,
-      state,
-      country,
-      postal_code,
-      name_as_per_bond,
-      fathers_name,
-      invested_amount,
-      invested_date,
-      monthly_received_amount,
-      agent_name,
-      agent_mobile_number,
-      sub_agent_name,
-      bond_reference_number,
-      paymentFile
-    });
-
-    await claim.save();
-    res.status(201).json({ message: 'Claim details saved successfully', claim });
-  } catch (error) {
-    res.status(500).json({ message: 'Error saving claim details', error: error.message });
-  }
-});
+router.post('/save-claim-details', upload.single('paymentFile'), async (req, res) => {
+    try {
+      const {
+        name, mobile_number, address, city, state, country, postal_code,
+        name_as_per_bond, fathers_name, invested_amount, invested_date,
+        monthly_received_amount, agent_name, agent_mobile_number, sub_agent_name,
+        bond_reference_number
+      } = req.body;
+  
+      const paymentFile = req.file ? req.file.path : '';
+  
+      const claim = new Claim({
+        name,
+        mobile_number,
+        address,
+        city,
+        state,
+        country,
+        postal_code,
+        name_as_per_bond,
+        fathers_name,
+        invested_amount,
+        invested_date,
+        monthly_received_amount,
+        agent_name,
+        agent_mobile_number,
+        sub_agent_name,
+        bond_reference_number,
+        paymentFile
+      });
+  
+      await claim.save();
+      res.status(201).json({ message: 'Claim details saved successfully', claim });
+    } catch (error) {
+      res.status(500).json({ message: 'Error saving claim details', error: error.message });
+    }
+  });
 
 
 
