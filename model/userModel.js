@@ -5,8 +5,13 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   phone: {
     type: String,
-    required: true,
-    unique: true,
+    trim: true,
+  },
+  name: {
+    type:String
+  },
+  email: {
+    type: String,
     trim: true,
   },
   otp: {
@@ -15,15 +20,18 @@ const userSchema = new Schema({
     trim: true,
   },
   role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
-    trim: true,
+    type: Schema.Types.ObjectId,
+    ref: 'Role',
+  },
+  isAdmin: {
+    type:Boolean,
+    default:false
   },
   claims: [{
     type: Schema.Types.ObjectId,
     ref: 'Claim'
-  }]
+  }],
+ password: { type: String, required: false },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);

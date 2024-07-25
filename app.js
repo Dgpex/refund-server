@@ -4,7 +4,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const userRoutes = require("./routes/user")
 const claimsRoutes = require("./routes/claim")
+const roleRoutes = require("./routes/role")
+const adminRoutes = require("./routes/admin")
+const appointmentsRoutes = require("./routes/appointment")
 const path = require('path');
+
 
 
 const app = express();
@@ -15,7 +19,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const corsOptions = {
   origin: "*", 
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+  methods: ["GET", "POST", "PUT","PATCH", "DELETE"], // Allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 };
 app.use(cors(corsOptions));
@@ -35,8 +39,11 @@ const connectDb = async () => {
   connectDb();
 
 
-  app.use("/api/user",userRoutes)
-  app.use("/api/claim",claimsRoutes)
+  app.use("/api/user",userRoutes);
+  app.use("/api/claim",claimsRoutes);
+  app.use("/api/role",roleRoutes);
+  app.use("/api/admin",adminRoutes);
+  app.use("/api/appointments",appointmentsRoutes);
 
 
 

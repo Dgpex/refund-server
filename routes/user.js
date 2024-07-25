@@ -16,7 +16,9 @@ const client = new twilio(accountSid, authToken);
 const sendOtp = async (phone, otp) => {
   try {
     await client.messages.create({
-      body: `Your OTP is ${otp}`,
+      body: `Your OTP for the DARWESH GROUP Login   is ${otp}. Please enter this code to verify your request. 
+    *Note:* This OTP is valid for 15 minutes and should not be shared with anyone.
+     Thank you for choosing Darwesh Group!`,
       to: `+91${phone}`,
       from: process.env.TWILIO_PHONE_NUMBER,
     });
