@@ -17,7 +17,7 @@ const claimSchema = new mongoose.Schema({
   agent_name: { type: String, trim: true },
   agent_mobile_number: { type: String, trim: true },
   sub_agent_name: { type: String, trim: true },
-  bond_reference_number: { type: String, trim: true },
+  bond_reference_number: { type: String, trim: true, unique: true },
   paymentFile: { type: String, trim: true },
   bondFile: { type: String, trim: true },
   created_at: { type: Date, default: Date.now },

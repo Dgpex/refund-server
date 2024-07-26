@@ -94,7 +94,7 @@ router.get('/token-count', async (req, res) => {
 
 // Get appointments with filters and pagination
 router.get('/list', async (req, res) => {
-    const { startDate, endDate, status, page = 1, limit = 10 } = req.query;
+    const { startDate, endDate, status, page = 1, limit = 10, sortBy = 'timeSlot', sortOrder = 'asc', token } = req.query;
   
     const query = {};
     if (startDate && endDate) {
@@ -103,10 +103,13 @@ router.get('/list', async (req, res) => {
     if (status) {
       query.status = status;
     }
+    if (token) {
+      query.token = { $regex: token, $options: 'i' }; // Case insensitive search
+    }
   
     try {
       const appointments = await Appointment.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
         .skip((page - 1) * limit)
         .limit(Number(limit));
   
@@ -120,6 +123,7 @@ router.get('/list', async (req, res) => {
       res.status(500).json({ message: 'Server error', error: error.message });
     }
   });
+  
   
   // API to update the status of an appointment
   router.put('/update-status/:id', async (req, res) => {
